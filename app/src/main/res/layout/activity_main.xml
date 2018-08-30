@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_3F3F3F"
-    tools:context=".MainActivity">
+    tools:context=".ui.MainActivity">
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/title_bar"
@@ -111,6 +111,17 @@
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/label4"
         app:layout_constraintEnd_toEndOf="@+id/label4" />
+
+    <Chronometer
+        android:id="@+id/timer"
+        android:format="计时:%s"
+        app:layout_constraintBottom_toTopOf="@+id/date"
+        app:layout_constraintEnd_toEndOf="@+id/date"
+        android:layout_marginBottom="20dp"
+        android:textSize="16sp"
+        android:textColor="@color/color_FFFFFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 
 </android.support.constraint.ConstraintLayout>
