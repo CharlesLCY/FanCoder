@@ -1,0 +1,100 @@
+package com.lcy.fancoder.listener
+
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.PowerManager
+
+
+/**
+ * @author FanCoder.LCY
+ * @date   2018/8/31 10:54
+ * @email  15708478830@163.com
+ * @desc
+ **/
+class ScreenListener(context: Context) {
+
+    private var mContext: Context? = null
+    private var mScreenReceiver: ScreenBroadcastReceiver? = null
+    private var mScreenStateListener: ScreenStateListener? = null
+
+    init {
+        mContext = context;
+        mScreenReceiver = ScreenBroadcastReceiver()
+    }
+
+    /**
+     * screen状态广播接收者
+     */
+    private inner class ScreenBroadcastReceiver : BroadcastReceiver() {
+        private var action: String? = null
+
+        override fun onReceive(context: Context, intent: Intent) {
+            action = intent.action
+            if (Intent.ACTION_SCREEN_ON == action) { // 开屏
+                mScreenStateListener!!.onScreenOn()
+            } else if (Intent.ACTION_SCREEN_OFF == action) { // 锁屏
+                mScreenStateListener!!.onScreenOff()
+            } else if (Intent.ACTION_USER_PRESENT == action) { // 解锁
+                mScreenStateListener!!.onUserPresent()
+            }
+        }
+    }
+
+    /**
+     * 开始监听screen状态
+     *
+     * @param listener
+     */
+    fun begin(listener: ScreenStateListener) {
+        mScreenStateListener = listener
+        registerListener()
+        getScreenState()
+    }
+
+    /**
+     * 获取screen状态
+     */
+    private fun getScreenState() {
+        val manager = mContext!!.getSystemService(Context.POWER_SERVICE) as PowerManager
+        if (manager.isScreenOn) {
+            if (mScreenStateListener != null) {
+                mScreenStateListener!!.onScreenOn()
+            }
+        } else {
+            if (mScreenStateListener != null) {
+                mScreenStateListener!!.onScreenOff()
+            }
+        }
+    }
+
+    /**
+     * 停止screen状态监听
+     */
+    fun unregisterListener() {
+        mContext!!.unregisterReceiver(mScreenReceiver)
+    }
+
+    /**
+     * 启动screen状态广播接收器
+     */
+    private fun registerListener() {
+        val filter = IntentFilter()
+        filter.addAction(Intent.ACTION_SCREEN_ON)
+        filter.addAction(Intent.ACTION_SCREEN_OFF)
+        filter.addAction(Intent.ACTION_USER_PRESENT)
+        mContext!!.registerReceiver(mScreenReceiver, filter)
+    }
+
+
+    interface ScreenStateListener {
+        // 返回给调用者屏幕状态信息
+        fun onScreenOn()
+
+        fun onScreenOff()
+
+        fun onUserPresent()
+    }
+
+}
