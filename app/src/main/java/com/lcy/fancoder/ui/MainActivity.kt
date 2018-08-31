@@ -3,6 +3,7 @@ package com.lcy.fancoder.ui
 import android.arch.lifecycle.Observer
 import android.graphics.Typeface
 import android.os.Bundle
+import android.os.SystemClock
 import android.support.v4.content.ContextCompat
 import android.view.View
 import com.lcy.fancoder.R
@@ -17,10 +18,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-
 class MainActivity : BaseActivity(), View.OnClickListener {
-    var vm: HomeViewModel ?= null
-    private var mScreenListener: ScreenListener ?= null
+    var vm: HomeViewModel? = null
+    private var mScreenListener: ScreenListener? = null
 
     var count: Int = 0
 
@@ -39,28 +39,36 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         val tf2: Typeface = Typeface.createFromAsset(assets, "fonts/PFZG.otf")
         tvCount.typeface = tf1
         count_bg.typeface = tf1
+        timer.typeface = tf1
+        timer1.typeface = tf1
         date.typeface = tf2
-//        timer.typeface = tf2
 
         // 获取ViewModel实例
         vm = getViewModel(this, HomeViewModel::class.java)
         // 设置点击监听
         log.setOnClickListener(this)
 
-//        timer.start()
+        timer.base = SystemClock.elapsedRealtime() //计时器清零
+        val hour: Int = ((SystemClock.elapsedRealtime() - timer.getBase()) / 1000 / 60).toInt()
+        timer.format = "0" + hour + ":%s"
+        timer.start()
 //        timer.onChronometerTickListener = Chronometer.OnChronometerTickListener {
 //            if (SystemClock.elapsedRealtime() - it.base > 1 * 1000 * 60) {
 //                it.stop()
 //            }
 //        }
+        timer1.text = "88:88:88"
+
 
         mScreenListener = ScreenListener(this)
 
         mScreenListener!!.begin(object : ScreenListener.ScreenStateListener {
             override fun onScreenOn() {
+                timer.start()
             }
 
             override fun onScreenOff() {
+                timer.stop()
             }
 
             override fun onUserPresent() {
@@ -76,11 +84,11 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         count = (SharePrefUtil.getSP("count", String::class.java, "0") as String).toInt()
         vm!!.setCount(count.toString())
 
-        date.post(object: Runnable {
+        date.post(object : Runnable {
             override fun run() {
                 vm!!.setDate(SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault()).format(Date(System.currentTimeMillis())))
 
-                date.postDelayed(this,1000)
+                date.postDelayed(this, 1000)
             }
         })
 
@@ -90,7 +98,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             count_bg.text = generateCountBg(it)
             if (number < 50) {
                 tvCount.setTextColor(ContextCompat.getColor(this, R.color.color_4A90FA))
-            }else {
+            } else {
                 tvCount.setTextColor(ContextCompat.getColor(this, R.color.color_EE4A4A))
             }
         })
@@ -101,7 +109,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        when(v?.id) {
+        when (v?.id) {
             R.id.log -> toast("LOG")
         }
     }
@@ -111,7 +119,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         vm?.onCleared()
     }
 
-    private fun generateCountBg(count:String): String {
+    private fun generateCountBg(count: String): String {
         var countBg = ""
         var countInt: Int = count.toInt()
 
